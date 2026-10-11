@@ -1,0 +1,115 @@
+# Shooters Zone Court
+
+An online booking system for a basketball court. Customers see which hours are open and request one. The court admin approves requests and manages the schedule.
+
+Live site: https://shooterszonecourt.netlify.app
+
+## Business
+
+**Business name:** Shooters Zone Court
+
+**What the business does:** Shooters Zone Court rents a full basketball court by the hour. The court is booked hour by hour, and each hour is either open, pending, occupied or not open.
+
+**Who uses the system:**
+- **Customers** (players and teams) browse the calendar, request an hour and choose how they will pay.
+- **The court admin** (owner or staff) posts the open hours, approves or declines requests, tracks payments and sets the rate.
+
+## Problem being solved
+
+Court bookings are usually arranged by chat or phone. That leads to double bookings, missed messages and no clear record of which hours are taken or paid. This system gives customers one place to see live availability, and gives the admin one place to manage the schedule, requests and payments. The database refuses to post the same hour twice, so double booking cannot happen at the data level.
+
+## Features
+
+**Landing page**
+- Court name, rate and opening hours, with a Book a court button.
+- A three-step "How booking works" section.
+- Hours, rate and contact cards that update from the admin settings.
+- A short FAQ.
+
+**Users**
+- **Customer** (no account needed): browse the next 21 days, request an open hour with name, phone and email, then choose a payment method (cash at the court or cashless).
+- **Admin** (email and password through Supabase Auth): sign in from the Admin login link in the page footer. Includes Forgot password.
+
+**CRUD**
+
+| Operation | What it does |
+|-----------|--------------|
+| Create | Admin posts open hours (single hour, Open all hours, Repeat for 7 days). Customers create booking requests. |
+| Read | Calendar with live status for each hour. Admin sees pending requests, the occupied schedule and recent decisions. |
+| Update | Admin approves or declines requests, edits an hour (available or occupied, booked by, details), marks hours paid or unpaid, and edits court settings (hours, rate, contact, email, cashless payment details). |
+| Delete | Admin closes an hour or all open hours for a day, which removes them from the schedule. |
+
+**Other**
+- Pending requests are shown to everyone as "Request pending" without revealing personal details.
+- Copy email button that prepares an approval or decline message for the customer.
+- Works on phone and desktop, with light and dark themes.
+
+## Tech stack
+
+- **Front end:** a single `index.html` using plain HTML, CSS and JavaScript (no build step).
+- **Database and login:** [Supabase](https://supabase.com) (PostgreSQL with Row Level Security and Supabase Auth), accessed through `@supabase/supabase-js` v2 loaded from a CDN.
+- **Fonts:** Google Fonts (Big Shoulders Display and Barlow).
+- **Hosting:** Netlify (static hosting).
+
+## Repository contents
+
+| File | Purpose |
+|------|---------|
+| `index.html` | The complete website (landing page, booking calendar, admin control). |
+| `shooters-zone-court-setup.sql` | Creates the database tables, view and security rules in Supabase. |
+| `README.md` | This file. |
+
+## Setup and run instructions
+
+You need a free [Supabase](https://supabase.com) account, a web browser, and either Python 3 or any static file server.
+
+1. **Get the code.** Clone or download this repository.
+   ```bash
+   git clone <your-repository-url>
+   cd <repository-folder>
+   ```
+2. **Create a Supabase project.** In Supabase click New project, name it, set a database password and choose a region.
+3. **Create the database.** Open SQL Editor, then New query. Paste the whole contents of `shooters-zone-court-setup.sql` and press Run. It should say Success. Run it only once.
+4. **Create the admin test account.** Open Authentication, then Users, then Add user. Enter the admin email and password from the Test accounts section below, and tick Auto Confirm User. Then open Authentication, then Sign In / Providers, and turn off Allow new users to sign up.
+5. **Connect the site to your project.** In Supabase open Project Settings, then API Keys (or Data API). Copy the Project URL and the anon (public) key. Open `index.html`, find these two lines near the top of the script and replace the values:
+   ```js
+   var SUPABASE_URL = 'https://YOUR-PROJECT-ID.supabase.co';
+   var SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
+   ```
+   Never use the `service_role` key in this file.
+6. **Run it locally.** From the repository folder:
+   ```bash
+   python3 -m http.server 8000
+   ```
+   Then open http://localhost:8000 in your browser.
+7. **Try it.** Click Admin login in the footer, sign in with the admin test account, open Admin control, and click Open all hours on a day. Then open the site in a private window and request an hour as a customer. Approve it in the admin Requests tab.
+
+**Deploying (optional).** Drag the folder that contains `index.html` onto https://app.netlify.com/drop. For the Forgot password email to work on your live address, set Authentication, then URL Configuration, then Site URL and Redirect URLs in Supabase to your live site address.
+
+## Test accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin.test@example.com` | `AdminTest#2026` |
+| Regular user (customer) | No account needed | Not applicable |
+
+The admin account must be created in Supabase as described in setup step 4, using exactly these values.
+
+**Customer test:** open the public site without signing in, pick an open hour and use sample details such as name `Test Customer`, phone `09123456789` and email `customer.test@example.com`.
+
+## AI tools used
+
+- **Claude (Anthropic)** was used to:
+  - generate the website code (landing page, booking calendar, admin control, forgot password flow);
+  - write the Supabase database script and security rules;
+  - give the Supabase and Netlify setup steps;
+  - draft this README.
+
+All AI-generated code and instructions were reviewed and run by the project owner.
+
+## Known limitations
+
+- Customers do not have accounts. They book with a name, phone and email.
+- Confirmation emails are copied from the admin screen and sent manually. Automatic email needs an email service.
+- Online payment is not processed. Customers pay in cash or by transfer using the details the admin enters.
+- Supabase's free email sender is limited to a few emails per hour, which affects Forgot password.
